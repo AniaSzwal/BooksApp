@@ -18,7 +18,7 @@
     booksTemplate: Handlebars.compile(document.querySelector(select.templateOf.booksTemplate).innerHTML),
   };
 
-//  Dodaj nową funkcję render
+  //  Dodaj nową funkcję render
 
   function render(){
     for (let books of dataSource.books){
@@ -35,4 +35,22 @@
   }
   render();
 
+  const favoriteBooks = [];
+
+  function initActions(){
+
+    const booksContainer = document.querySelector(select.containerOf.booksList);
+    const booksImage = booksContainer.querySelectorAll('.book__image');
+
+    for(let image of booksImage){
+      image.addEventListener('dblclick', function(event){
+        event.preventDefault();
+        image.classList.add('favorite');
+        const id = image.getAttribute('data-id');
+        favoriteBooks.push(id);
+      });
+    }
+  }
+  initActions();
 }
+
