@@ -11,24 +11,26 @@
     },
     containerOf: {
       booksList: '.books-list',
+      form: '.filters',
     },
-
-    class: {
-      favoriteBooks: 'favorite',
-    },
-
     book: {
-      bookImage: '',
-    }
+      image: '.books-list',
+      favorite: '.favorite',
+    },
   };
 
   const templates = {
     booksTemplate: Handlebars.compile(document.querySelector(select.templateOf.booksTemplate).innerHTML),
   };
 
+  const booksListContainer = document.querySelector(select.containerOf.booksList); // referencja do listy ksiażek
+  const filteredBooks = document.querySelector(select.containerOf.form)
+  const favoriteBooks = [];
+  const filters = [];
+
   //  Dodaj nową funkcję render
 
-  function render() {
+  const render = function () {
     for (let books of dataSource.books) {
 
       // wygenerowanie kodu HTML na podstawie szablonu
@@ -40,32 +42,69 @@
       //add element to list - Wygenerowany element DOM dołącz jako nowe dziecko DOM do listy .books-list.
       booksListContainer.appendChild(element);
     }
-  }
+  };
 
-  render();
+  const initActions = function() {
 
-  const favoriteBooks = [];
-
-  const initActions = function(){
-
-    const booksListContainer = document.querySelector(select.containerOf.booksList); //referencja do listy książek
-
-    booksListContainer.addEventListener('dblclick', function(event){ //nasłuchiwacz
+    booksListContainer.addEventListener('dblclick', function (event) { //nasłuchiwacz
       event.preventDefault(); // zatrzymanie domyślnych
-      const clickedElement = event.target.offsetParent; //najbliższy kliknięty
-      const id = clickedElement.getAttribute('data-id'); // pobieranie atrybutu
+      const bookCover = event.target.offsetParent; // Element, od którego obliczane są wszystkie przesunięcia
 
-      // Jeśli nie jest, to funkcja ma dodać klasę favorite i zapisać id książki w tablicy favoriteBooks
-      if(!clickedElement.classList.contains('favorite')){
-        favoriteBooks.push(id); //dodanie identyfikatora do favbooks
-        clickedElement.classList.add('favorite');
+      if (bookCover.classList.contains('book__image')) {
+        const id = bookCover.getAttribute('data-id'); // pobieranie atrybutu
 
-        //Jeśli jest, to usuń id takiej książki z tablicy favoriteBooks i usun takiemu elementowi klasę favorite.
-      }else{
-        favoriteBooks.splice(favoriteBooks.indexOf(id), 1); //usunięcie id z tablicy
-        clickedElement.classList.remove('favorite');
+        // Jeśli nie jest w "favoriteBooks", to funkcja ma dodać klasę favorite i zapisać id książki w tablicy favoriteBooks
+        if (favoriteBooks.includes(id)) {
+          const indexBooks = favoriteBooks.indexOf(id);
+          bookCover.classList.remove('favorite');
+          favoriteBooks.splice(indexBooks, 1);
+          //Jeśli jest, to usuń id takiej książki z tablicy favoriteBooks i usun takiemu elementowi klasę favorite.
+
+        } else {
+          bookCover.classList.add('favorite');
+          favoriteBooks.push(id);
+        }
       }
     });
+
+    filteredBooks.addEventListener('change', function (event) {
+      event.preventDefault();
+      const clickedElem = event.target;
+      if (clickedElem.type === 'checkbox') {
+        if (clickedElem.checked) {
+          filters.push(clickedElem.value);
+          console.log(filters);
+        } else {
+          const filterIndex = filters.indexOf(clickedElem.value);
+          filters.splice(filterIndex, 1);
+          console.log(filters);
+        }
+      }
+      filterBooks();
+    });
+
+    const filterBooks = function () {
+      for (let elem of dataSource.books) {
+        let shouldBeHidden = false;
+        for (let filter of filters) {
+          if (!elem.details[filter]) {
+            shouldBeHidden = true;
+            break;
+          }
+        }
+        if (shouldBeHidden) {
+          const bookCover = document.querySelector('.book__image[data-id="' + elem.id + '"]');
+          console.log('bookCover:', bookCover);
+          bookCover.classList.add('hidden');
+        } else {
+          const bookCover = document.querySelector('.book__image[data-id="' + elem.id + '"]');
+          bookCover.classList.remove('hidden');
+        }
+      }
+    };
   };
+
+
+  render();
   initActions();
 }
