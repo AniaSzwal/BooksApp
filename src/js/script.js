@@ -29,20 +29,19 @@
       thisBooksList.getElements();
       thisBooksList.render();
       thisBooksList.initActions();
-      thisBooksList.determineRatingBgc();
     }
 
     initData(){
       const thisBooksList = this;
       thisBooksList.data = dataSource.books;
+      thisBooksList.favoriteBooks = [];
+      thisBooksList.filters = [];
     }
 
     getElements(){
       const thisBooksList = this;
       thisBooksList.listContainer = document.querySelector(select.containerOf.bookList);
       thisBooksList.filtersWrapper = document.querySelector(select.containerOf.filters);
-      thisBooksList.favoriteBooks = [];
-      thisBooksList.filters = [];
     }
 
     render() {
@@ -107,7 +106,7 @@
     initActions(){
       const thisBooksList = this;
 
-      thisBooksList.listContainer.addEventListener('click', function(event){
+      thisBooksList.listContainer.addEventListener('dblclick', function(event){
 
         event.preventDefault();
 
